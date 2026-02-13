@@ -1,10 +1,17 @@
 {
-  "name": "Wolf Pack Plugin",
+  "name": "wolf-pack-marketplace",
   "description": "Claude Code 规则固化与工作流插件 - 通过 Hook 持久化项目规则，提供多 agent 并发工作流执行",
+  "owner": {
+    "name": "Wolf Pack Team",
+    "email": "noreply@github.com"
+  },
   "plugins": [
     {
       "name": "wolf-pack",
-      "description": "Wolf Pack 核心功能 - 规则管理与工作流"
+      "description": "Wolf Pack 核心功能 - 规则管理与工作流",
+      "source": {
+        "type": "local"
+      }
     }
   ]
 }
