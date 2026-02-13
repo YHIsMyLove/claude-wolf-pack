@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "description": "Wolf Pack Hook 配置 - 持久化项目规则和会话洞察",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh",
+            "async": false,
+            "description": "读取项目规则并注入到系统上下文"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-end.sh",
+            "async": true,
+            "description": "分析会话并追加洞察到规则文件"
+          }
+        ]
+      }
+    ]
+  }
+}
