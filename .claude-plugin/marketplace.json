@@ -13,14 +13,7 @@
       "name": "wolf-pack",
       "description": "Wolf Pack 核心功能 - 规则管理与工作流",
       "source": "./",
-      "strict": false,
-      "skills": [
-        "./skills/wolf-pack",
-        "./skills/wolf-board",
-        "./skills/wolf-insights",
-        "./skills/wolf-brainstorm",
-        "./skills/wolf-remember"
-      ]
+      "strict": false
     }
   ]
 }
