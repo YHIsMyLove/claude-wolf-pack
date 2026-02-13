@@ -10,8 +10,8 @@ set -e
 CLAUDE_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 PROJECT_ROOT="${CLAUDE_PROJECT_ROOT:-$(pwd)}"
 
-# 规则目录
-RULES_DIR="$PROJECT_ROOT/rules"
+# 规则目录 - 使用 .claude/rules/ 作为统一记忆系统
+RULES_DIR="$PROJECT_ROOT/.claude/rules"
 TRACE_DIR="$PROJECT_ROOT/.wolf/trace"
 SESSION_HISTORY="${CLAUDE_SESSION_HISTORY:-}"
 
@@ -152,6 +152,36 @@ log_session_stats() {
     } >> "$stats_file"
 }
 
+# 函数: 记录会话洞察（快速摘要模式）
+log_insights() {
+    local insights_file="$RULES_DIR/.session-insights.md"
+    local timestamp="$(date '+%Y-%m-%d')"
+    local time_human="$(date '+%H:%M:%S')"
+
+    # 确保文件存在
+    mkdir -p "$RULES_DIR"
+    [[ -f "$insights_file" ]] || touch "$insights_file"
+
+    # 快速摘要内容
+    {
+        echo ""
+        echo "## [$timestamp] - 会话摘要"
+        echo ""
+        echo "**时间**: $time_human"
+        if [[ -n "$SESSION_HISTORY" ]]; then
+            echo "**会话历史**: $SESSION_HISTORY"
+        else
+            echo "**会话历史**: N/A"
+        fi
+        echo ""
+        echo "---"
+        echo ""
+    } >> "$insights_file"
+
+    # 输出通知
+    echo "   📝 会话摘要: $insights_file" >&2
+}
+
 # 主逻辑
 main() {
     # 初始化目录
@@ -167,11 +197,19 @@ main() {
     # 记录会话统计
     log_session_stats
 
-    # 如果有会话历史路径，可以进一步分析
-    # 这里简化处理，实际分析由 /wolf-insights 命令完成
+    # 记录会话洞察（快速摘要模式）
+    log_insights
 
+    # 输出完整通知
+    local today="$(date +%Y-%m-%d)"
+    echo "" >&2
     echo "🐺 Wolf Pack: 会话已记录" >&2
-    echo "   - 文件变化: $TRACE_DIR/$(date +%Y-%m-%d)-files.md" >&2
+    echo "" >&2
+    echo "📂 摘要: .claude/rules/.session-insights.md" >&2
+    echo "📁 文件变化: $TRACE_DIR/$today-files.md" >&2
+    echo "📊 会话统计: $TRACE_DIR/$today-stats.md" >&2
+    echo "" >&2
+    echo "提示: 使用 /wolf-memory 查看和管理记忆" >&2
 }
 
 # 执行

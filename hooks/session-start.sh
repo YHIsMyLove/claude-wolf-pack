@@ -10,9 +10,9 @@ set -e
 CLAUDE_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 PROJECT_ROOT="${CLAUDE_PROJECT_ROOT:-$(pwd)}"
 
-# 规则目录
-RULES_DIR="$PROJECT_ROOT/rules"
-MEMORY_DIR="$PROJECT_ROOT/.wolf/memory"
+# 规则目录 - 使用 .claude/rules/ 作为统一记忆系统
+RULES_DIR="$PROJECT_ROOT/.claude/rules"
+MEMORY_DIR="$PROJECT_ROOT/.claude/rules"
 WOLF_MD="$PROJECT_ROOT/.wolf.md"
 MEMORY_INDEX="$MEMORY_DIR/index.md"
 
