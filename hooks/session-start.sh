@@ -12,7 +12,9 @@ PROJECT_ROOT="${CLAUDE_PROJECT_ROOT:-$(pwd)}"
 
 # 规则目录
 RULES_DIR="$PROJECT_ROOT/rules"
+MEMORY_DIR="$PROJECT_ROOT/.wolf/memory"
 WOLF_MD="$PROJECT_ROOT/.wolf.md"
+MEMORY_INDEX="$MEMORY_DIR/index.md"
 
 # 输出标记 (用户可见)
 echo ""
@@ -53,11 +55,19 @@ main() {
         done
     fi
 
-    # 3. 如果没有规则，提供初始化提示
+    # 3. 加载记忆索引 (L2 记忆)
+    if [[ -f "$MEMORY_INDEX" ]]; then
+        echo ""
+        echo "--- .wolf/memory/index.md ---"
+        cat "$MEMORY_INDEX"
+        rules_found=true
+    fi
+
+    # 4. 如果没有规则，提供初始化提示
     if [[ "$rules_found" == "false" ]]; then
         echo ""
-        echo "ℹ️  项目尚未初始化 Wolf Pack 规则"
-        echo "   使用 /wolf-remember init 可初始化规则结构"
+        echo "ℹ️  项目尚未初始化 Wolf Pack 记忆系统"
+        echo "   使用 /wolf-memory init 可初始化记忆结构"
     else
         echo ""
         echo "✓ 项目规则已加载"

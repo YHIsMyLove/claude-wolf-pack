@@ -1,5 +1,5 @@
 ---
-argument-hint: [--source=tasks|projects|issues|session] [--priority=high|medium|low] [--exec] [--breakdown]
+argument-hint: [--source=tasks|projects|issues|session] [--priority=high|medium|low] [--exec] [--breakdown] [--save] [--load=path]
 description: 显示任务并拆解为可并行执行的单元
 ---
 
@@ -29,6 +29,26 @@ description: 显示任务并拆解为可并行执行的单元
 /wolf-board --breakdown               # 拆解任务为可并行执行的单元
 ```
 
+### 存储任务文件
+
+```bash
+/wolf-board --breakdown --save        # 拆解任务并存储到 .wolf/tasks/
+```
+
+存储位置：`.wolf/tasks/YYYY-MM-DD-{slug}.units.md`
+
+### 读取任务文件
+
+```bash
+/wolf-board --load .wolf/tasks/2026-02-13-user-auth.units.md
+```
+
+### 自动集成
+
+当从 wolf-brainstorm 调用时：
+- 自动添加 `--save` 参数
+- 任务文件自动存储到 `.wolf/tasks/` 目录
+
 ## 任务来源
 
 | 来源 | 扫描路径 | 描述 |
@@ -37,6 +57,7 @@ description: 显示任务并拆解为可并行执行的单元
 | projects | TODO.md, TASKS.md | 项目文件中的任务 |
 | issues | rules/issues.md | 记忆中未解决的问题 |
 | session | 当前会话 | 从对话中识别的任务 |
+| wolf-brainstorm | .wolf/tasks/ | 头脑风暴生成的任务文件 |
 
 ## 输出格式
 
@@ -104,6 +125,52 @@ description: 显示任务并拆解为可并行执行的单元
 或使用: /wolf-pack unit-auth-model unit-auth-service unit-auth-api
 ```
 
+## 任务文件格式
+
+### .units.md Markdown 文件格式
+
+```
+# [任务标题]
+
+**日期**: 2026-02-13
+**来源**: wolf-brainstorm | manual | issues | projects
+**优先级**: HIGH | MEDIUM | LOW
+**预估时间**: X 小时
+
+## 目标
+
+[一句话描述]
+
+## 验收标准
+
+- [ ] 验收项 1
+- [ ] 验收项 2
+
+## 约束条件
+
+- [ ] 约束 1
+- [ ] 约束 2
+
+## 执行单元拆分
+
+### [1] unit-xxx
+**描述**: [单元描述]
+**文件**: [涉及文件列表]
+**依赖**: [依赖的单元 ID]
+**预估**: [时间]
+
+### [2] unit-yyy
+...
+```
+
+### 文件命名规则
+
+```
+格式: YYYY-MM-DD-{slug}.units.md
+slug: 从任务标题生成 (kebab-case)
+示例: 2026-02-13-user-auth.units.md
+```
+
 ## 执行逻辑
 
 1. 扫描所有来源的任务
@@ -126,6 +193,34 @@ description: 显示任务并拆解为可并行执行的单元
 - 🔴 **HIGH**: 阻塞问题、安全漏洞、数据丢失风险
 - 🟡 **MEDIUM**: 功能需求、重构、性能优化
 - 🟢 **LOW**: 文档更新、样式调整、nice-to-have
+
+## 与 wolf-brainstorm 集成
+
+### 自动调用链
+
+当 wolf-brainstorm 完成目标澄清并确认后：
+1. 自动记录决策到 `rules/decisions.md`
+2. 询问是否需要拆分任务
+3. 用户确认后自动调用 `/wolf-board --breakdown --save`
+4. 任务文件存储到 `.wolf/tasks/YYYY-MM-DD-{slug}.units.md`
+
+### 输出格式
+
+```
+🐺: 嗷~~
+════════════════════════════
+
+✅ 决策已记录到 rules/decisions.md
+✅ 任务已拆分并存储到 .wolf/tasks/
+
+📋 已生成任务文件:
+  .wolf/tasks/2026-02-13-user-auth.units.md
+
+后续操作:
+  - 查看任务: cat .wolf/tasks/2026-02-13-user-auth.units.md
+  - 执行任务: /wolf-pack unit-auth-model unit-auth-service
+  - 重新拆分: /wolf-board --breakdown
+```
 
 ---
 

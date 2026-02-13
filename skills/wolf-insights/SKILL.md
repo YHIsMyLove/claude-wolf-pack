@@ -1,17 +1,18 @@
 ---
 name: wolf-insights
-description: 分析当前会话并提取洞察存储到项目记忆 (rules/*.md)
+description: 分析当前会话并提取洞察存储到项目记忆 (.wolf/memory/)
 ---
 
 # Wolf Insights 会话洞察分析技能
 
 ## 功能
 
-此技能分析当前会话历史，提取关键信息并存储到项目的 `rules/` 目录：
+此技能分析当前会话历史，提取关键信息并存储到项目的 `.wolf/memory/` 目录：
 
-1. **问题识别** → `rules/issues.md`
-2. **模式发现** → `rules/patterns.md`
-3. **亮点捕捉** → `rules/patterns.md`
+1. **问题识别** → `.wolf/memory/issues/`
+2. **决策发现** → `.wolf/memory/decisions/`
+3. **模式发现** → `.wolf/memory/patterns/`
+4. **亮点捕捉** → `.wolf/memory/patterns/`
 
 ## 分析流程
 
@@ -236,3 +237,28 @@ patterns.md:
 - 只记录会话元数据
 - 不执行深度分析
 - 深度分析由 /wolf-insights 手动触发
+
+---
+
+## 与 wolf-memory 集成
+
+```yaml
+/wolf-insights 执行流程:
+
+1. 分析会话历史
+   - 扫描最近对话
+   - 识别问题/模式/亮点/决策
+
+2. 调用 wolf-memory save
+   - 问题 → /wolf-memory save issue
+   - 模式 → /wolf-memory save pattern
+   - 决策 → /wolf-memory save decision
+   - 亮点 → /wolf-memory save pattern (type=highlight)
+
+3. 更新索引
+   - 调用 /wolf-memory update-index
+
+4. 返回分析结果
+```
+
+**注意**: 分析完成后，所有提取的内容自动存储到 `.wolf/memory/` 目录。

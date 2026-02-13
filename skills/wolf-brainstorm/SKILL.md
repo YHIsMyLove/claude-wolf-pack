@@ -129,3 +129,74 @@ description: 通过交互式提问澄清目标和验收标准
 "重新开始" → 清空状态，重新开始
 "显示当前" → 显示已收集的信息
 \`\`\`
+
+---
+
+## 执行集成
+
+### 半自动调用链
+
+确认计划摘要后，系统执行：
+
+1. **记录决策** - 自动调用 `/wolf-remember decision`
+2. **询问拆分** - 询问用户是否需要拆分任务
+
+\`\`\`markdown
+🐺: 嗷~~
+
+✅ 决策已记录到 rules/decisions.md
+
+─────────────────────────────────────────────
+是否需要将任务拆分为可执行的单元？
+  - 输入 'y' 或 '是' → 自动拆分并存储
+  - 输入 'n' 或 '否' → 跳过，稍后手动触发
+\`\`\`
+
+3. **拆分任务** (用户确认后)
+   - 调用 `/wolf-board --breakdown --save`
+   - 存储到 `.wolf/tasks/YYYY-MM-DD-{slug}.units.md`
+4. **执行提示** - 显示后续操作选项
+
+### 拆分完成输出格式
+
+\`\`\`markdown
+🐺: 嗷~~
+════════════════════════════
+
+✅ 决策已记录到 rules/decisions.md
+✅ 任务已拆分并存储到 .wolf/tasks/
+
+📋 已生成任务文件:
+  .wolf/tasks/2026-02-13-user-auth.units.md
+
+后续操作:
+  - 查看任务: cat .wolf/tasks/2026-02-13-user-auth.units.md
+  - 执行任务: /wolf-pack unit-auth-model unit-auth-service
+  - 重新拆分: /wolf-board --breakdown
+\`\`\`
+
+### 手动触发提示
+
+如果用户选择不拆分，输出：
+
+\`\`\`markdown
+🐺: 嗷~~
+
+💡 提示: 稍后可手动拆分任务
+  /wolf-board --breakdown
+\`\`\`
+
+### 数据传递给 wolf-board
+
+\`\`\`yaml
+输入:
+  - 目标: 一句话描述
+  - 验收: 验收标准列表
+  - 约束: 约束条件列表
+  - 预估: 预估时间
+  - 来源: wolf-brainstorm
+
+输出:
+  - 执行单元列表 (ExecUnit[])
+  - 存储文件路径 (.wolf/tasks/YYYY-MM-DD-{slug}.units.md)
+\`\`\`
