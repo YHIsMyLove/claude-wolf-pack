@@ -2,32 +2,15 @@
   "name": "wolf-pack",
   "version": "1.0.0",
   "description": "Claude Code 规则固化与工作流插件 - 通过 Hook 持久化项目规则，提供多 agent 并发工作流执行",
-  "author": "Wolf Pack Team",
-  "homepage": "https://github.com/wolf-pack/claude-code-plugin",
-  "repository": "https://github.com/wolf-pack/claude-code-plugin",
+  "author": {
+    "name": "Wolf Pack Team",
+    "email": "noreply@github.com"
+  },
+  "homepage": "https://github.com/YHIsMyLove/claude-wolf-pack",
+  "repository": "https://github.com/YHIsMyLove/claude-wolf-pack",
   "license": "MIT",
+  "keywords": ["rules", "workflow", "multi-agent", "automation", "hooks"],
   "claude": {
     "minVersion": "4.5.0"
-  },
-  "capabilities": [
-    "hooks",
-    "commands",
-    "skills"
-  ],
-  "hooks": {
-    "SessionStart": "hooks/session-start.sh",
-    "SessionEnd": "hooks/session-end.sh"
-  },
-  "categories": [
-    "workflow",
-    "productivity",
-    "automation"
-  ],
-  "tags": [
-    "rules",
-    "workflow",
-    "multi-agent",
-    "automation",
-    "hooks"
-  ]
+  }
 }
