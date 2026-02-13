@@ -44,7 +44,7 @@ description: 多层记忆管理系统 - 记录、加载、搜索项目记忆
 ```
 L0: ~/.claude/CLAUDE.md              # 全局指令（Claude 自动加载）
 L1: .wolf.md                          # 项目入口索引
-L2: .wolf/memory/                     # 二级记忆（按需加载）
+L2: .claude/rules/                     # 二级记忆（按需加载）
     ├── index.md                        # 主索引
     ├── decisions/                        # 决策记忆
     ├── patterns/                         # 模式记忆

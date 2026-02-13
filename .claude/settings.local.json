@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: 新增 wolf-memory 多层级记忆系统并集成工作流\n\n- 新增 /wolf-memory 命令和技能，替代 wolf-remember\n- 集成 wolf-brainstorm → wolf-board 自动工作流\n- 更新记忆系统路径从 rules/ 到 .wolf/memory/\n- 删除 wolf-remember 技能（已被 wolf-memory 替代）\n\n新增文件：\n- commands/wolf-memory.md - 多层级记忆管理命令\n- skills/wolf-memory/ - wolf-memory 技能实现\n- templates/memory/ - 记忆文件模板\n- output-styles/ - 输出样式\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}

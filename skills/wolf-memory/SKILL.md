@@ -15,7 +15,7 @@ argument-hint: <action> [args...]
 ```
 L0: ~/.claude/CLAUDE.md              # 全局指令（Claude 自动加载）
 L1: .wolf.md                          # 项目入口索引
-L2: .wolf/memory/                     # 二级记忆（按需加载）
+L2: .claude/rules/                     # 二级记忆（按需加载）
     ├── index.md                        # 主索引（< 5KB，会话启动自动加载）
     ├── decisions/                        # 决策记忆
     ├── patterns/                         # 模式记忆
@@ -26,7 +26,7 @@ L2: .wolf/memory/                     # 二级记忆（按需加载）
 
 ### 核心能力
 
-1. **记录 (save)** - 保存新记忆到 .wolf/memory/
+1. **记录 (save)** - 保存新记忆到 .claude/rules/
 2. **加载 (load)** - 按需加载记忆到会话上下文
 3. **搜索 (search)** - 查找历史记忆
 4. **初始化 (init)** - 创建记忆目录结构
@@ -78,7 +78,7 @@ L2: .wolf/memory/                     # 二级记忆（按需加载）
   6. 相关文件
   7. 状态（未解决|已解决）
 
-存储: .wolf/memory/issues/open/ 或 issues/solved/
+存储: .claude/rules/issues/open/ 或 issues/solved/
       - 未解决 → open/
       - 已解决 → solved/
 
@@ -109,7 +109,7 @@ L2: .wolf/memory/                     # 二级记忆（按需加载）
   5. 影响范围
   6. 相关文件
 
-存储: .wolf/memory/decisions/[YYYYMMDD]-[slug].md
+存储: .claude/rules/decisions/[YYYYMMDD]-[slug].md
 
 输出格式:
   ---
@@ -162,7 +162,7 @@ L2: .wolf/memory/                     # 二级记忆（按需加载）
   5. 代码示例 (可选)
   6. 可复用性
 
-存储: .wolf/memory/patterns/[category]/[YYYYMMDD]-[slug].md
+存储: .claude/rules/patterns/[category]/[YYYYMMDD]-[slug].md
 
 输出格式:
   ---
@@ -205,7 +205,7 @@ L2: .wolf/memory/                     # 二级记忆（按需加载）
   - conventions: 项目约定
   - architecture: 架构决策
 
-存储: .wolf/memory/context/[type].md
+存储: .claude/rules/context/[type].md
 
 输出格式:
   # 项目上下文
@@ -271,11 +271,11 @@ L2: .wolf/memory/                     # 二级记忆（按需加载）
 📊 搜索结果: [keyword]
 
 ## Decisions (2)
-- [20260213-tech-stack](.wolf/memory/decisions/20260213-tech-stack.md) - 使用 TypeScript
-- [20260212-api-design](.wolf/memory/decisions/20260212-api-design.md) - RESTful 规范
+- [20260213-tech-stack](.claude/rules/decisions/20260213-tech-stack.md) - 使用 TypeScript
+- [20260212-api-design](.claude/rules/decisions/20260212-api-design.md) - RESTful 规范
 
 ## Patterns (3)
-- [component-factory](.wolf/memory/patterns/component/20260213-factory.md) - 组件工厂模式
+- [component-factory](.claude/rules/patterns/component/20260213-factory.md) - 组件工厂模式
 ...
 ```
 
@@ -286,9 +286,9 @@ L2: .wolf/memory/                     # 二级记忆（按需加载）
 ```bash
 用法: /wolf-memory init
 
-执行内容:
-1. 创建目录结构:
-   .wolf/memory/
+执行内容：
+1. 创建目录结构：
+   .claude/rules/
    ├── decisions/
    ├── patterns/
    │   ├── component/
@@ -303,7 +303,7 @@ L2: .wolf/memory/                     # 二级记忆（按需加载）
 
 2. 从 templates/memory/ 复制模板文件（如果存在）
 
-3. 创建初始索引文件 .wolf/memory/index.md
+3. 创建初始索引文件 .claude/rules/index.md
 
 4. 更新 .wolf.md 添加记忆目录引用
 
@@ -321,9 +321,9 @@ L2: .wolf/memory/                     # 二级记忆（按需加载）
 ```bash
 用法: /wolf-memory update-index
 
-执行内容:
-1. 扫描 .wolf/memory/ 所有记忆文件
-2. 更新 .wolf/memory/index.md
+执行内容：
+1. 扫描 .claude/rules/ 所有记忆文件
+2. 更新 .claude/rules/index.md
 3. 按优先级排序（热标记记优先）
 
 索引格式:
@@ -497,10 +497,10 @@ created: [YYYY-MM-DD]
 
 ```bash
 # 验证目录结构
-ls .wolf/memory/
+ls .claude/rules/
 
 # 验证索引文件
-cat .wolf/memory/index.md
+cat .claude/rules/index.md
 
 # 搜索测试
 /wolf-memory search typescript
