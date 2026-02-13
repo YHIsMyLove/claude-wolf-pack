@@ -1,0 +1,10 @@
+{
+  "name": "Wolf Pack Plugin",
+  "description": "Claude Code 规则固化与工作流插件 - 通过 Hook 持久化项目规则，提供多 agent 并发工作流执行",
+  "plugins": [
+    {
+      "name": "wolf-pack",
+      "description": "Wolf Pack 核心功能 - 规则管理与工作流"
+    }
+  ]
+}
