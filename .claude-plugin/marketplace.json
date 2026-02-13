@@ -5,13 +5,13 @@
     "email": "331446704@qq.com"
   },
   "metadata": {
-    "description": "Claude Code 规则固化与工作流插件 - 通过 Hook 持久化项目规则，提供多 agent 并发工作流执行",
-    "version": "1.0.0"
+    "description": "Claude Code 工作流插件 - 多层级记忆系统、头脑风暴、任务看板与并行执行",
+    "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "wolf-pack",
-      "description": "Wolf Pack 核心功能 - 规则管理与工作流",
+      "description": "Wolf Pack - 记忆管理 + 工作流自动化",
       "source": "./",
       "strict": false
     }
