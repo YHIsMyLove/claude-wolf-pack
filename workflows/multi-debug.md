@@ -70,21 +70,7 @@ destructive: []
 
 **任务**: 为每个独立问题启动一个 analyzer agent，分析根因。
 
-**Agent 任务模板**:
-```
-分析以下问题的根因：
-
-问题: {{PROBLEM_DESCRIPTION}}
-上下文: {{PROBLEM_CONTEXT}}
-
-请分析：
-1. 可能的原因
-2. 根因定位
-3. 建议的修复方案
-4. 相关文件
-```
-
-**执行方式**: 使用 Task 工具并发启动多个 general-purpose agent
+**执行方式**: 使用 Task 工具并发启动多个 general-purpose agent，每个 agent 分析一个问题
 
 ---
 

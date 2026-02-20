@@ -142,16 +142,7 @@ other → generic-task
 - 有依赖任务: 顺序执行
 - 冲突任务: 等待锁释放
 
-**Agent 任务模板**:
-```
-执行以下任务：
-
-任务: {{TASK_DESCRIPTION}}
-类型: {{TASK_TYPE}}
-工作流: {{WORKFLOW_NAME}}
-
-使用 {{WORKFLOW_NAME}} 工作流执行此任务。
-```
+**执行策略**: 使用对应的工作流处理每个任务
 
 ---
 

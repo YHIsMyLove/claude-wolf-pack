@@ -10,10 +10,10 @@ description: 执行工作流、管理工作流模板、并行执行单元
 此技能负责：
 
 1. **工作流执行** - 执行预定义的工作流模板
-2. **工作流管理** - 创建、列表、验证工作流（原 wolf-flow）
+2. **工作流管理** - 创建、列表、验证工作流
 3. **并行调度** - 并发执行多个执行单元
 4. **前置条件检查** - 加权评分验证
-5. **多 Agent 并发** - 使用 Task 工具并发执行
+5. **Agent Team 协作** - 使用官方 Team 工具并发执行
 
 ---
 
@@ -21,15 +21,12 @@ description: 执行工作流、管理工作流模板、并行执行单元
 
 ### 1.1 加载工作流
 
-```yaml
-从 workflows/{{workflow_name}}.md 读取工作流定义
+嗷~~ 从 workflows/{{workflow_name}}.md 读取工作流定义
 解析: 触发条件、前置条件、破坏性操作、执行步骤
-```
 
 ### 1.2 前置条件检查
 
-```yaml
-对每个 check:
+嗷~~ 对每个 check:
   - 执行检查逻辑
   - 按权重评分 (0-20)
   - 记录通过/失败状态
@@ -38,88 +35,113 @@ description: 执行工作流、管理工作流模板、并行执行单元
 验证: 总分 >= threshold ?
   通过: 继续
   失败: 中止执行，输出检查报告
-```
 
 ### 1.3 破坏性操作确认
 
-```yaml
-如果工作流包含破坏性操作:
+嗷~~ 如果工作流包含破坏性操作:
   - 列出所有破坏性操作
   - 要求用户确认 (除非 --force)
   - 用户取消则中止
-```
 
 ### 1.4 执行步骤
 
-```yaml
-按步骤定义:
+嗷~~ 按步骤定义:
   - 分析步骤依赖关系
   - 构建执行计划 (并发/顺序)
-  - 启动 subagent(s)
+  - 创建 Agent Team
 
-使用 Task 工具:
-  - 并发步骤: 同时启动多个 agent
-  - 顺序步骤: 等待前一步完成
-  - 收集每个 agent 的输出
-```
+使用官方 Agent Team 工具:
+  - TeamCreate(team_name, description) - 创建团队
+  - TaskCreate(subject, description, activeForm) - 创建任务
+  - TaskUpdate(taskId, owner, addBlockedBy) - 分配任务和设置依赖
+  - SendMessage(type=broadcast) - 广播通知
+  - TaskList() - 监控进度
+  - SendMessage(type=shutdown_request) - 关闭 teammate
+  - TeamDelete() - 删除团队
 
 ### 1.5 结果整合
 
-```yaml
-收集所有 subagent 输出:
+嗷~~ 收集所有 teammate 输出:
   - 整合结果
   - 验证完成度
   - 生成执行报告
-```
 
 ---
 
-## 六、头脑风暴集成（来自 wolf-brainstorm）
+## 二、Agent Team 工具使用
 
-### 6.1 调用条件
-
-当用户执行 `/wolf-brainstorm` 并确认目标摘要后：
-- 目标已清晰（评分 >= 64）
-- 验收标准已明确
-- 约束已识别
-
-### 6.2 自动传递
-
-```
-📋 计划摘要
-─────────────────────────────
-
-目标: [一句话目标]
-验收: [验收标准]
-约束: [主要约束]
-预估: [X] 小时
-
-接收？(y/n)
-```
-
-确认后自动：
-1. 调用 `/wolf-board` - 将摘要作为新任务添加到看板
-2. 调用 `/wolf-pack` - 传递给对应工作流
-
-### 6.3 工作流匹配
+### 2.1 创建团队
 
 ```yaml
-目标类型 → 推荐工作流:
-  头杂功能开发 → feature-dev
-  多问题并行 → multi-debug
-  代码重构 → refactor
-  任务看板 → task-board
- 通用任务 → task-board
+TeamCreate(team_name, description):
+  team_name: "wolf-pack-{{timestamp}}"
+  description: "工作流执行团队: {{workflow_name}}"
 ```
+
+嗷~~ 创建团队会自动:
+  - 创建团队配置文件 ~/.claude/teams/{{team_name}}/config.json
+  - 创建对应任务列表目录 ~/.claude/tasks/{{team_name}}/
+
+### 2.2 创建任务
+
+```yaml
+TaskCreate(subject, description, activeForm):
+  subject: "步骤标题"
+  description: "详细任务描述，包含上下文、目标、验收标准"
+  activeForm: "正在执行步骤"
+```
+
+嗷~~ 任务创建后状态为 'pending'，需要通过 TaskUpdate 分配。
+
+### 2.3 分配任务
+
+```yaml
+TaskUpdate(taskId, owner, addBlockedBy):
+  owner: "agent-name"         # 分配给特定 agent
+  addBlockedBy: ["task-1"]    # 设置依赖，等待任务完成后才可开始
+```
+
+嗷~~ 并发控制策略:
+  - 无文件冲突 → owner=null (自由竞争，任何 idle agent 可领取)
+  - 有文件冲突 → owner=特定 agent 或 addBlockedBy (顺序执行)
+
+### 2.4 监控进度
+
+```yaml
+TaskList():
+  返回: 所有任务的 state、owner、blockedBy
+```
+
+嗷~~ 循环检查直到所有任务完成:
+  - status='completed' → 标记完成
+  - status='in_progress' → 等待
+  - blockedBy 为空 → 可领取的新任务
+
+### 2.5 广播与关闭
+
+```yaml
+SendMessage(type="broadcast", content):
+  向所有 teammate 发送消息
+
+SendMessage(type="shutdown_request", recipient):
+  请求特定 teammate 关闭
+
+TeamDelete():
+  删除团队和任务目录
+```
+
+嗷~~ 优雅关闭流程:
+  1. 向所有 teammate 发送 shutdown_request
+  2. 等待确认或超时
+  3. 调用 TeamDelete() 清理资源
 
 ---
 
-## 二、工作流管理（原 wolf-flow）
+## 三、工作流管理
 
-### 2.1 create - 创建工作流
+### 3.1 create - 创建工作流
 
-```yaml
-交互式流程:
+嗷~~ 交互式流程:
   1. 询问工作流名称
   2. 询问描述
   3. 询问触发条件
@@ -130,12 +152,10 @@ description: 执行工作流、管理工作流模板、并行执行单元
 输出:
   - 工作流文件路径
   - 使用说明
-```
 
-### 2.2 list - 列出工作流
+### 3.2 list - 列出工作流
 
-```yaml
-输出格式:
+嗷~~ 输出格式:
   📋 可用工作流
 
   [1] multi-debug
@@ -149,12 +169,10 @@ description: 执行工作流、管理工作流模板、并行执行单元
   ...
 
   共 N 个工作流
-```
 
-### 2.3 validate - 验证工作流
+### 3.3 validate - 验证工作流
 
-```yaml
-检查项:
+嗷~~ 检查项:
   ✓ 结构完整性
   ✓ 步骤依赖有效性
   ✓ 前置条件权重合理性
@@ -164,9 +182,8 @@ description: 执行工作流、管理工作流模板、并行执行单元
 输出:
   通过 → ✓ 工作流有效
   失败 → ✗ 问题列表
-```
 
-### 2.4 工作流格式
+### 3.4 工作流格式
 
 ```markdown
 ## [工作流名称]
@@ -225,9 +242,29 @@ destructive:
 
 ---
 
-## 三、并行执行单元
+## 四、任务级并发控制
 
-### 3.1 执行单元数据结构
+### 4.1 调度算法
+
+嗷~~ 并发执行逻辑:
+
+```yaml
+输入: 执行步骤列表 [step1, step2, ...]
+
+步骤:
+  1. TeamCreate(team_name, description)
+  2. TaskCreate(...) - 创建所有任务
+  3. 分析文件冲突:
+     - 检查各步骤涉及的文件
+     - 无重叠 → owner=null
+     - 有重叠 → 设置 addBlockedBy
+  4. TaskUpdate(addBlockedBy) - 设置依赖
+  5. SendMessage(type=broadcast) - 通知开始
+  6. 循环 TaskList() 监控进度
+  7. 全部完成 → shutdown_request + TeamDelete()
+```
+
+### 4.2 文件冲突检测
 
 ```yaml
 ExecUnit:
@@ -238,63 +275,69 @@ ExecUnit:
   estimated_time: string       # 预估时间
   priority: high|medium|low    # 优先级
   agent_type: string           # agent 类型
+
+冲突检测:
+  对每对 (unitA, unitB):
+    if unitA.files ∩ unitB.files ≠ empty:
+      添加顺序依赖 (addBlockedBy)
 ```
 
-### 3.2 并行调度逻辑
+### 4.3 调度示例
 
-```yaml
-输入: 执行单元列表 [unit1, unit2, ...]
-
-步骤:
-  1. 构建依赖图
-  2. 检测文件冲突
-  3. 分层执行 (拓扑排序)
-  4. 并发启动同层 agent
-  5. 收集结果
-
-文件冲突处理:
-  - 检查 files 是否重叠
-  - 重叠文件: 顺序执行
-  - 无重叠: 并发执行
-```
-
-### 3.3 调度示例
-
-```yaml
-输入单元:
+嗷~~ 输入单元:
   - unit1: files=[a.ts, b.ts]
   - unit2: files=[c.ts, d.ts]
   - unit3: files=[b.ts, e.ts]  # 与 unit1 冲突
 
 调度结果:
-  第 1 层 (并发): unit1, unit2
-  第 2 层 (等待): unit3 (依赖 unit1 完成)
-```
+  TaskCreate("unit-1", ...)
+  TaskCreate("unit-2", ...)
+  TaskCreate("unit-3", ...)
+  TaskUpdate("unit-3", addBlockedBy=["unit-1"])  # 等待 unit1 完成
 
 ---
 
-## 四、Subagent 调用
+## 五、与 wolf-brainstorm 集成
+
+### 5.1 调用条件
+
+嗷~~ 当用户执行 `/wolf-brainstorm` 并确认目标摘要后：
+- 目标已清晰（评分 >= 64）
+- 验收标准已明确
+- 约束已识别
+
+### 5.2 自动传递
+
+```
+📋 计划摘要
+─────────────────────────────
+
+目标: [一句话目标]
+验收: [验收标准]
+约束: [主要约束]
+预估: [X] 小时
+
+接收？(y/n)
+```
+
+确认后自动：
+1. 调用 `/wolf-board` - 将摘要作为新任务添加到看板
+2. 调用 `/wolf-pack` - 传递给对应工作流
+
+### 5.3 工作流匹配
 
 ```yaml
-Agent 模板:
-  subagent_type: "general-purpose"
-  prompt: |
-    你是一个任务执行专家。
-
-    **任务**: {{step_task}}
-    **上下文**: {{project_context}}
-    **目标**: {{step_goal}}
-    **验收标准**: {{step_acceptance}}
-
-    请执行任务并返回:
-    1. 执行内容描述
-    2. 修改的文件列表
-    3. 验证方法
+目标类型 → 推荐工作流:
+  复杂功能开发 → feature-dev
+  多问题并行 → multi-debug
+  代码重构 → refactor
+  任务看板 → task-board
+  通用任务 → task-board
 ```
 
 ---
 
-## 五、错误处理
+## 六、错误处理
 
 ```yaml
 前置条件失败:
@@ -307,11 +350,15 @@ Agent 模板:
   - 根据 mode 决定: 继续/中止
   - strict: 任何失败都中止
   - lenient: 关键步骤失败才中止
+
+Team 创建失败:
+  - 检查是否有同名团队存在
+  - 清理后重试或使用新名称
 ```
 
 ---
 
-## 六、输出格式
+## 七、输出格式
 
 ### 执行报告
 
@@ -336,17 +383,21 @@ Agent 模板:
 ### 并行执行报告
 
 ```markdown
-## 并行执行报告
+## Agent Team 执行报告
+
+### 团队信息
+🐺 团队: wolf-pack-20250220-143022
+📊 任务: 5 个
 
 ### 执行计划
-第 1 层 (并发): unit1, unit2, unit4
-第 2 层 (等待): unit3
+第 1 层 (并发): task-1, task-2, task-4
+第 2 层 (等待): task-3 (依赖 task-1)
 
 ### 执行结果
-✅ unit1: 完成 (耗时 2 分钟)
-✅ unit2: 完成 (耗时 1.5 分钟)
-✅ unit4: 完成 (耗时 3 分钟)
-✅ unit3: 完成 (耗时 1 分钟)
+✅ task-1: 完成 (agent: researcher)
+✅ task-2: 完成 (agent: coder)
+✅ task-4: 完成 (agent: reviewer)
+✅ task-3: 完成 (agent: researcher)
 
 ### 修改文件
 - path/to/file1.ts
@@ -358,7 +409,7 @@ Agent 模板:
 
 ---
 
-## 七、工作流模式
+## 八、工作流模式
 
 ### strict 模式
 - 所有步骤必须执行
@@ -370,26 +421,26 @@ Agent 模板:
 - 可选步骤可跳过
 - 用于探索性任务
 
-## 偏差处理
+### 偏差处理
 
-### track 模式
+#### track 模式
 - 记录所有偏差
 - 继续执行
 - 最后输出偏差报告
 
-### block 模式
+#### block 模式
 - 偏差时立即停止
 - 要求用户决策
 - 用于危险操作
 
-### warn 模式
+#### warn 模式
 - 偏差时警告
 - 继续执行
 - 用于非关键操作
 
 ---
 
-## 八、验证规则
+## 九、验证规则
 
 ### 结构检查
 
@@ -437,7 +488,7 @@ Agent 模板:
 
 ---
 
-## 九、文件组织
+## 十、文件组织
 
 ```yaml
 workflows/
@@ -452,38 +503,4 @@ workflows/
 
 ---
 
-## 十、快速模板
-
-### basic 模板
-
-```markdown
-## [名称]
-### 描述
-### 触发条件
-### 步骤
-#### Step 1: [步骤]
-#### Step 2: [步骤]
-```
-
-### advanced 模板
-
-```markdown
-## [名称]
-### 描述
-### 触发条件
-### 前置条件
-### 执行配置
-### 步骤 (含依赖、验收)
-```
-
-### parallel 模板
-
-```markdown
-## [名称]
-### 描述
-### 触发条件
-### 步骤 (并行执行)
-#### Step 1: [步骤] (并行: 是)
-#### Step 2: [步骤] (并行: 是)
-#### Step 3: 整合结果
-```
+嗷~~ Wolf Pack 技能文档更新完毕！

@@ -1,6 +1,6 @@
 ---
 argument-hint: [workflow-name | [exec-unit...]] [create|list|validate] [--dry-run] [--force]
-description: 执行工作流或并行执行单元
+description: 执行工作流或并行执行单元（使用 Agent Team）
 ---
 
 # Wolf Pack - 工作流执行与并行调度
@@ -12,13 +12,13 @@ description: 执行工作流或并行执行单元
 ```bash
 /wolf-pack [workflow-name]       # 执行预定义工作流
 /wolf-pack feature-dev --dry-run # 预览执行
+/wolf-pack multi-debug           # 多问题并行调试
 ```
 
-### 工作流管理（原 wolf-flow）
+### 工作流管理
 
 ```bash
 /wolf-pack create                # 创建新工作流
-/wolf-pack create --name=my-workflow
 /wolf-pack list                  # 列出所有工作流
 /wolf-pack validate [workflow-name]  # 验证工作流
 ```
@@ -66,6 +66,21 @@ description: 执行工作流或并行执行单元
 | config_files_exist | 10 | 配置文件存在 |
 | environment_ready | 15 | 环境就绪 |
 
+## Agent Team 模式
+
+默认使用 Claude Code 官方 Agent Team 系统：
+
+```yaml
+执行流程:
+  1. TeamCreate(team_name, description)  # 创建团队
+  2. TaskCreate(...)                     # 创建任务
+  3. TaskUpdate(owner/blockedBy)         # 分配和设置依赖
+  4. SendMessage(broadcast)              # 通知开始
+  5. TaskList()                          # 监控进度
+  6. SendMessage(shutdown_request)       # 关闭 teammate
+  7. TeamDelete()                        # 删除团队
+```
+
 ## 并行执行单元
 
 执行单元是由 `/wolf-board` 拆解生成的可并行执行的任务单元。
@@ -95,6 +110,10 @@ description: 执行工作流或并行执行单元
 # 并行执行
 /wolf-pack auth-module user-api  # 并发执行两个单元
 ```
+
+## Windows 用户多 Agent 支持
+
+如需多 Agent 并行执行，可先使用 `/wolf-terminal` 启动分屏，然后执行工作流。
 
 ## 工作流格式
 
@@ -136,11 +155,18 @@ destructive:
 - **偏差处理**: track | block | warn
 
 ### 步骤
+
 #### Step 1: [步骤名称]
 - **关键**: true/false
 - **依赖**: []
+- **Agent**: general-purpose
 - **并行**: false
 - **输出**: [预期结果]
+- **验收**: [如何验证完成]
+
+[步骤详细描述...]
+
+#### Step 2: ...
 ```
 
 ---
