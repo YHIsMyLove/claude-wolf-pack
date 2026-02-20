@@ -1,6 +1,20 @@
 {
   "version": "1.0.0",
-  "description": "Wolf Pack Hook 配置 - 持久化项目规则和会话洞察",
+  "description": "Wolf Pack Hook 配置 - 持久化项目规则和会话洞察（跨平台）",
+  "platforms": {
+    "windows": {
+      "shell": "powershell.exe",
+      "extension": ".ps1",
+      "SessionStart": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.ps1",
+      "SessionEnd": "${CLAUDE_PLUGIN_ROOT}/hooks/session-end.ps1"
+    },
+    "unix": {
+      "shell": "bash",
+      "extension": ".sh",
+      "SessionStart": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh",
+      "SessionEnd": "${CLAUDE_PLUGIN_ROOT}/hooks/session-end.sh"
+    }
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -8,7 +22,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.ps1",
+            "platform": "windows"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh",
+            "platform": "unix"
           }
         ]
       }
@@ -19,7 +39,26 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-end.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-end.ps1",
+            "platform": "windows"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-end.sh",
+            "platform": "unix"
+          }
+        ]
+      }
+    ],
+    "PreCommand": [
+      {
+        "matcher": "^/wolf-pack.*--team$",
+        "hooks": [
+          {
+            "type": "skill",
+            "skill": "wolf-terminal",
+            "description": "自动启动 Windows Terminal 分屏",
+            "platform": "windows"
           }
         ]
       }
