@@ -50,18 +50,5 @@
         ]
       }
     ],
-    "PreCommand": [
-      {
-        "matcher": "^/wolf-pack.*--team$",
-        "hooks": [
-          {
-            "type": "skill",
-            "skill": "wolf-terminal",
-            "description": "自动启动 Windows Terminal 分屏",
-            "platform": "windows"
-          }
-        ]
-      }
-    ]
   }
 }
