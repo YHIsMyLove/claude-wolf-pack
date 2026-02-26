@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-02-26",
+  "totalIssues": 0,
+  "openIssues": 0,
+  "solvedIssues": 0,
+  "hotspotIssues": 0,
+  "categories": {
+    "错误诊断": 0,
+    "阻塞因素": 0,
+    "依赖问题": 0,
+    "知识缺口": 0
+  },
+  "topHotspots": [],
+  "recentActivity": [],
+  "warningThreshold": 3,
+  "criticalThreshold": 5
+}

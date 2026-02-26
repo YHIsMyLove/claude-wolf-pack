@@ -125,6 +125,22 @@ ${recentMessages.map(msg => `- ${msg}`).join('\n')}
     }
 }
 
+// 提升优质记忆到用户级
+function promoteQualityMemory() {
+    const scriptPath = path.join(CLAUDE_PLUGIN_ROOT, 'scripts', 'promote-memory.js');
+
+    if (fs.existsSync(scriptPath)) {
+        try {
+            // 动态导入模块
+            const promoteModule = require(scriptPath);
+            promoteModule.promoteMemory();
+            console.log('✓ 记忆提升检查完成');
+        } catch (error) {
+            console.error('⚠️ 记忆提升检查失败:', error.message);
+        }
+    }
+}
+
 // 主函数
 function main() {
     console.log('');
@@ -143,8 +159,13 @@ function main() {
         recordSessionInsights();
         console.log('✓ 会话洞察已记录');
 
+        // 提升优质记忆到用户级
+        promoteQualityMemory();
+
         console.log('');
         console.log('🎉 会话结束记录完成！');
+        console.log('');
+        console.log('💡 提示：优质记忆已自动检查，符合条件的已提升到用户级');
 
     } catch (error) {
         console.error('❌ 记录会话状态出错:', error.message);

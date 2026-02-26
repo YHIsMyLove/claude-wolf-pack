@@ -1,0 +1,109 @@
+# Wolf Pack 进化记忆系统配置
+# 用于管理和优化记忆系统的行为
+
+# 热点问题配置
+hotspot:
+  # 热点定义：同一类别问题数量达到阈值
+  warningThreshold: 3      # 警告阈值：达到此数量标记为热点
+  criticalThreshold: 5     # 严重阈值：达到此数量标记为严重热点
+  autoHotspot: true       # 自动检测热点
+  checkFrequency: "session" # 检查频率: session|daily|manual
+
+  # 热点问题特征
+  characteristics:
+    - "频繁出现的问题"
+    - "影响多个功能模块"
+    - "解决方案复杂或重复"
+    - "可能导致性能问题"
+    - "与业务逻辑密切相关"
+
+# 经验记录配置
+experience:
+  # 自动记录经验
+  autoRecord: true
+  # 记录条件
+  minOccurrences: 2       # 最少出现次数才记录为经验
+  minSatisfaction: 7      # 满意度评分（1-10）
+
+  # 经验分类
+  categories:
+    - "问题解决模式"
+    - "调试技巧"
+    - "优化方法"
+    - "架构决策"
+    - "最佳实践"
+
+# 高发点警告系统
+warning:
+  # 警告级别
+  levels:
+    hot: "⚠️ 热点警告"
+    critical: "🚨 严重警告"
+
+  # 触发条件
+  triggers:
+    categoryCount:
+      - category: "错误诊断"
+        threshold: 3
+        level: "hot"
+      - category: "阻塞因素"
+        threshold: 2
+        level: "critical"
+      - category: "依赖问题"
+        threshold: 3
+        level: "hot"
+      - category: "知识缺口"
+        threshold: 2
+        level: "hot"
+
+    recurrenceRate:
+      - rate: ">50%"
+        level: "critical"
+      - rate: ">30%"
+        level: "hot"
+
+# 记忆增强配置
+enhancement:
+  # 智能标签推荐
+  autoTagging: true
+  # 相关记忆链接
+  autoLink: true
+  # 优先级动态调整
+  dynamicPriority: true
+
+  # 标签权重
+  tagWeights:
+    performance: 0.8
+    security: 0.9
+    usability: 0.7
+    scalability: 0.6
+    maintainability: 0.7
+
+# 用户级记忆配置
+userMemory:
+  # 启用用户级记忆
+  enabled: true
+  # 存储位置
+  storageDir: "~/.claude/rules"
+  # 同步策略
+  syncStrategy: "manual" # manual|auto|session
+
+  # 共享设置
+  sharing:
+    allowShare: false
+    shareScope: "project" # project|team
+
+# 输出配置
+output:
+  # 统计信息显示
+  showStats: true
+  # 热点提醒
+  showHotspots: true
+  # 经验展示
+  showExperiences: true
+
+  # 显示格式
+  format:
+    compact: false
+    detailed: true
+    includeTrends: true

@@ -52,6 +52,67 @@ function getRuleFiles() {
     return [];
 }
 
+// 函数: 检查高发点问题
+function checkHotspotWarnings() {
+    const statsPath = path.join(RULES_DIR, 'issues', 'stats.json');
+    if (!fs.existsSync(statsPath)) {
+        return;
+    }
+
+    const stats = JSON.parse(fs.readFileSync(statsPath, 'utf8'));
+    const configPath = path.join(RULES_DIR, 'issues', 'config.yaml');
+    let config = {
+        hotspot: {
+            warningThreshold: 3,
+            criticalThreshold: 5,
+            checkFrequency: "session"
+        },
+        warning: {
+            levels: {
+                hot: "⚠️ 热点警告",
+                critical: "🚨 严重警告"
+            }
+        }
+    };
+
+    // 加载配置文件（如果存在）
+    if (fs.existsSync(configPath)) {
+        const configContent = fs.readFileSync(configPath, 'utf8');
+        // 简单的 YAML 解析（仅用于示例）
+        const lines = configContent.split('\n');
+        lines.forEach(line => {
+            if (line.includes('warningThreshold:')) {
+                const value = parseInt(line.split(':')[1].trim());
+                config.hotspot.warningThreshold = value;
+            } else if (line.includes('criticalThreshold:')) {
+                const value = parseInt(line.split(':')[1].trim());
+                config.hotspot.criticalThreshold = value;
+            }
+        });
+    }
+
+    console.log('');
+    console.log('🔍 高发点检查结果:');
+
+    // 检查各类别问题数量
+    let hasWarnings = false;
+    for (const [category, count] of Object.entries(stats.categories)) {
+        if (count >= config.hotspot.criticalThreshold) {
+            console.log(`   ${config.warning.levels.critical} ${category}: ${count} 个问题`);
+            hasWarnings = true;
+        } else if (count >= config.hotspot.warningThreshold) {
+            console.log(`   ${config.warning.levels.hot} ${category}: ${count} 个问题`);
+            hasWarnings = true;
+        }
+    }
+
+    if (!hasWarnings) {
+        console.log('   ✓ 未发现高发点问题');
+    }
+
+    console.log('');
+}
+
 // 函数: 初始化规则目录
 function initializeRulesDir() {
     if (!fs.existsSync(RULES_DIR)) {
@@ -74,6 +135,26 @@ function initializeRulesDir() {
         }
     });
 
+    // 创建 issues 子目录
+    const issuesSubdirs = ['open', 'solved', 'hotspots'];
+    const issuesDir = path.join(RULES_DIR, 'issues');
+    issuesSubdirs.forEach(subdir => {
+        const dirPath = path.join(issuesDir, subdir);
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+    });
+
+    // 创建 patterns 子目录
+    const patternsSubdirs = ['component', 'api', 'workflow', 'architecture', 'experiences'];
+    const patternsDir = path.join(RULES_DIR, 'patterns');
+    patternsSubdirs.forEach(subdir => {
+        const dirPath = path.join(patternsDir, subdir);
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+    });
+
     // 创建 index.md
     const indexPath = path.join(RULES_DIR, 'index.md');
     if (!fs.existsSync(indexPath)) {
@@ -90,6 +171,9 @@ function initializeRulesDir() {
 ### 模式类
 - _暂无模式记录_
 
+### 高发点警告
+- _暂无热点问题_
+
 ## 📁 分类统计
 
 | 类别 | 数量 | 最近更新 |
@@ -98,6 +182,7 @@ function initializeRulesDir() {
 | patterns | 0 | - |
 | issues-open | 0 | - |
 | issues-solved | 0 | - |
+| hotspot-issues | 0 | - |
 
 ## 🔍 标签云
 
@@ -118,8 +203,19 @@ _暂无标签_
 - **决策 (decisions/)**: 记录重要技术决策及其理由
 - **模式 (patterns/)**: 记录可复用的成功模式和工作流
 - **问题 (issues/)**: 记录遇到的问题和解决方案
+  - **open/**: 未解决问题
+  - **solved/**: 已解决问题
+  - **hotspots/**: 高发点问题
 - **上下文 (context/)**: 项目上下文信息
 - **归档 (archived/)**: 已归档的历史记忆
+
+### 高发点系统
+
+高发点系统自动识别频繁出现或影响重大的问题，提供：
+- 🔍 自动热点检测
+- 📊 问题趋势分析
+- ⚠️ 热点警告提示
+- 💡 经验模式提取
 `;
         fs.writeFileSync(indexPath, indexContent, 'utf8');
     }
@@ -150,6 +246,9 @@ function main() {
     if (fs.existsSync(MEMORY_INDEX)) {
         rulesFound = true;
     }
+
+    // 4. 检查高发点问题
+    checkHotspotWarnings();
 
     // 4. 输出状态
     if (!rulesFound) {

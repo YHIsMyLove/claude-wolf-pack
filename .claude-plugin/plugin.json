@@ -1,7 +1,7 @@
 {
   "name": "wolf-pack",
   "description": "Claude Code 工作流插件 - 多层级记忆系统、头脑风暴、任务看板与并行执行",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": {
     "name": "Wolf Pack Team",
     "email": "noreply@github.com"
